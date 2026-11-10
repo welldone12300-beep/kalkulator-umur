@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Usia</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* VARIABEL WARNA (DEFAULT: GELAP) */
+:root {
+    --bg-body: radial-gradient(circle at top left, #8b5cf6, transparent 40%),
+               radial-gradient(circle at bottom right, #2563eb, transparent 40%),
+               linear-gradient(135deg, #0f172a, #1e1b4b);
+    --container-bg: rgba(255, 255, 255, 0.10);
+    --container-border: rgba(255, 255, 255, 0.2);
+    --text-main: #ffffff;
+    --text-desc: #cbd5e1;
+    --input-bg: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(59,130,246,0.2));
+    --input-border: rgba(167,139,250,0.5);
+    --card-bg: rgba(255, 255, 255, 0.12);
+    --card-border: rgba(255, 255, 255, 0.2);
+    --card-text: #ede9fe;
+}
+
+/* TEMA TERANG (LIGHT MODE) */
+body.light-mode {
+    --bg-body: radial-gradient(circle at top left, #c4b5fd, transparent 40%),
+               radial-gradient(circle at bottom right, #93c5fd, transparent 40%),
+               linear-gradient(135deg, #f8fafc, #e2e8f0);
+    --container-bg: rgba(255, 255, 255, 0.75);
+    --container-border: rgba(148, 163, 184, 0.3);
+    --text-main: #0f172a;
+    --text-desc: #475569;
+    --input-bg: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(59,130,246,0.08));
+    --input-border: rgba(139,92,246,0.3);
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --card-border: rgba(203, 213, 225, 0.6);
+    --card-text: #334155;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 25px;
+    background: var(--bg-body);
+}
+
+/* HEADER & TOMBOL TEMA */
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.theme-toggle {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* CONTAINER */
+.container {
+    width: 100%;
+    max-width: 480px;
+    padding: 35px;
+    background: var(--container-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--container-border);
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: muncul 0.8s ease;
+}
+
+@keyframes muncul {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* JUDUL */
+h1 {
+    text-align: left;
+    color: var(--text-main);
+    font-size: 26px;
+}
+
+.deskripsi {
+    color: var(--text-desc);
+    margin-bottom: 25px;
+    font-size: 13px;
+}
+
+/* INPUT */
+.input-group {
+    margin-bottom: 22px;
+}
+
+label {
+    display: block;
+    color: var(--text-main);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* TANGGAL LAHIR */
+.date-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 15px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 14px;
+    transition: 0.3s;
+}
+
+.date-wrapper:hover {
+    border-color: #a78bfa;
+    box-shadow: 0 0 15px rgba(139,92,246,0.2);
+    transform: translateY(-2px);
+}
+
+.date-wrapper:focus-within {
+    border-color: #c084fc;
+    box-shadow: 0 0 18px rgba(168,85,247,0.3);
+}
+
+.date-icon {
+    font-size: 25px;
+}
+
+.date-wrapper input {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 16px 0;
+    background: transparent;
+    color: var(--text-main);
+    border: none;
+    outline: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+body.light-mode .date-wrapper input::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+    cursor: pointer;
+}
+
+body:not(.light-mode) .date-wrapper input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+.petunjuk {
+    color: var(--text-desc);
+    font-size: 12px;
+    margin-top: 9px;
+}
+
+/* TOMBOL UTAMA */
+.btn-hitung {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(99,102,241,0.35);
+}
+
+.btn-hitung:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(168,85,247,0.5);
+    filter: brightness(1.15);
+}
+
+.btn-hitung:active {
+    transform: scale(0.97);
+}
+
+/* HASIL */
+.hasil {
+    display: none;
+    margin-top: 25px;
+    padding: 22px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    text-align: center;
+    animation: hasilMuncul 0.5s ease;
+}
+
+@keyframes hasilMuncul {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.hasil h2 {
+    color: var(--text-main);
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+/* KARTU USIA */
+.usia {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.usia div {
+    flex: 1;
+    padding: 17px 5px;
+    background: linear-gradient(145deg, #6366f1, #9333ea);
+    border-radius: 14px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    transition: 0.3s;
+}
+
+.usia div:hover {
+    transform: translateY(-7px);
+    background: linear-gradient(145deg, #8b5cf6, #c084fc);
+}
+
+.usia h3 {
+    color: white;
+    font-size: 26px;
+    margin-bottom: 5px;
+}
+
+.usia p {
+    color: #ede9fe;
+    font-size: 13px;
+}
+
+/* KATEGORI USIA */
+.kategori {
+    margin-top: 15px;
+    padding: 18px 15px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 15px;
+    animation: hasilMuncul 0.7s ease;
+    transition: 0.3s;
+}
+
+.kategori-icon {
+    font-size: 34px;
+    margin-bottom: 6px;
+}
+
+.kategori h3 {
+    color: var(--text-main);
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.kategori p {
+    color: var(--card-text);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* WARNA KATEGORI */
+.kategori.anak {
+    background: rgba(34,197,94,0.15);
+    border-color: #4ade80;
+}
+
+.kategori.remaja {
+    background: rgba(59,130,246,0.15);
+    border-color: #60a5fa;
+}
+
+.kategori.dewasa {
+    background: rgba(168,85,247,0.15);
+    border-color: #c084fc;
+}
+
+.kategori.lansia {
+    background: rgba(245,158,11,0.15);
+    border-color: #fbbf24;
+}
+
+/* INFORMASI TAMBAHAN (GRID 2 KOLOM) */
+.info-tambahan {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.card-extra {
+    padding: 16px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 15px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.card-extra:hover {
+    transform: translateY(-4px);
+    border-color: rgba(139,92,246,0.5);
+}
+
+.extra-icon {
+    font-size: 26px;
+    margin-bottom: 6px;
+}
+
+.card-extra h4 {
+    color: var(--text-main);
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.card-extra p {
+    color: var(--card-text);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* KARTU RINCIAN TOTAL WAKTU (FULL WIDTH) */
+.card-rincian {
+    margin-top: 15px;
+    padding: 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 15px;
+    text-align: center;
+}
+
+.card-rincian h4 {
+    color: var(--text-main);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.rincian-grid {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.rincian-item span {
+    display: block;
+    font-weight: bold;
+    color: var(--text-main);
+    font-size: 15px;
+}
+
+.rincian-item p {
+    font-size: 11px;
+    color: var(--text-desc);
+}
+
+/* TOMBOL AKSI IKON (SALIN & WHATSAPP) */
+.aksi-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.btn-icon-aksi {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    border: 1px solid var(--card-border);
+    transition: 0.3s;
+}
+
+.btn-salin {
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--text-main);
+}
+
+.btn-salin:hover {
+    background: rgba(139, 92, 246, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-wa {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.btn-wa:hover {
+    background: rgba(34, 197, 94, 0.35);
+    transform: translateY(-2px);
+}
+
+.btn-wa svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+}
+
+/* ERROR */
+.error {
+    color: #f87171;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* NOTIFIKASI TOAST KECIL SAAT DISALIN */
+.toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #1e293b;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    .container {
+        padding: 25px 20px;
+    }
+
+    h1 {
+        font-size: 23px;
+    }
+
+    .usia {
+        gap: 7px;
+    }
+
+    .usia div {
+        padding: 15px 3px;
+    }
+
+    .usia h3 {
+        font-size: 22px;
+    }
+
+    .info-tambahan {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header-top">
+        <div>
+            <h1>🎂 Kalkulator Usia</h1>
+        </div>
+        <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Ubah Mode Tampilan">
+            🌙
+        </button>
+    </div>
+
+    <p class="deskripsi">
+        Hitung usia, rincian waktu, zodiak, dan hitung mundur ulang tahun
+    </p>
+
+    <!-- INPUT -->
+    <div class="input-group">
+        <label>🎂 Tanggal Lahir</label>
+        <div class="date-wrapper">
+            <div class="date-icon">📅</div>
+            <input type="date" id="tanggalLahir">
+        </div>
+        <p class="petunjuk">
+            Pilih tanggal, bulan, dan tahun kelahiran Anda
+        </p>
+    </div>
+
+    <!-- PROCESS -->
+    <button class="btn-hitung" onclick="hitungUsia()">
+        ✨ Hitung Usia
+    </button>
+
+    <!-- OUTPUT -->
+    <div class="hasil" id="hasil">
+
+        <h2>Usia Anda</h2>
+
+        <div class="usia">
+            <div>
+                <h3 id="tahun">0</h3>
+                <p>Tahun</p>
+            </div>
+            <div>
+                <h3 id="bulan">0</h3>
+                <p>Bulan</p>
+            </div>
+            <div>
+                <h3 id="hari">0</h3>
+                <p>Hari</p>
+            </div>
+        </div>
+
+        <!-- RINCIAN TOTAL WAKTU HIDUP -->
+        <div class="card-rincian">
+            <h4>📊 Total Rincian Waktu Hidup</h4>
+            <div class="rincian-grid">
+                <div class="rincian-item">
+                    <span id="totalHari">0</span>
+                    <p>Total Hari</p>
+                </div>
+                <div class="rincian-item">
+                    <span id="totalJam">0</span>
+                    <p>Total Jam</p>
+                </div>
+                <div class="rincian-item">
+                    <span id="totalMenit">0</span>
+                    <p>Total Menit</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- KATEGORI -->
+        <div class="kategori" id="kategori">
+            <div class="kategori-icon" id="kategoriIcon">🌱</div>
+            <h3 id="kategoriNama">Anak-anak</h3>
+            <p id="kategoriDeskripsi">Anda termasuk kelompok usia anak-anak.</p>
+        </div>
+
+        <!-- KARTU HITUNG MUNDUR & ZODIAK -->
+        <div class="info-tambahan">
+            <!-- ZODIAK & SHIO -->
+            <div class="card-extra">
+                <div class="extra-icon" id="zodiakIcon">✨</div>
+                <h4 id="zodiakNama">Zodiak & Shio</h4>
+                <p id="zodiakDeskripsi">Memuat zodiak...</p>
+            </div>
+
+            <!-- COUNTDOWN ULANG TAHUN -->
+            <div class="card-extra">
+                <div class="extra-icon">⏳</div>
+                <h4>Ulang Tahun Berikutnya</h4>
+                <p id="countdownDeskripsi">Memuat hitung mundur...</p>
+            </div>
+        </div>
+
+        <!-- TOMBOL AKSI IKON (SALIN & WHATSAPP) -->
+        <div class="aksi-group">
+            <button class="btn-icon-aksi btn-salin" onclick="salinHasil()" title="Salin Hasil">
+                📋
+            </button>
+            <button class="btn-icon-aksi btn-wa" onclick="bagikanWhatsApp()" title="Bagikan ke WhatsApp">
+                <!-- Ikon SVG Resmi WhatsApp -->
+                <svg viewBox="0 0 24 24">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                </svg>
+            </button>
+        </div>
+
+    </div>
+
+    <p class="error" id="error"></p>
+
+</div>
+
+<!-- TOAST NOTIFIKASI -->
+<div class="toast" id="toastNotif">Hasil berhasil disalin ke clipboard!</div>
+
+<script>
+
+// FUNGSI PENGALIH MODE GELAP & TERANG
+function toggleTheme() {
+    const body = document.body;
+    const btn = document.getElementById("themeToggleBtn");
+    
+    body.classList.toggle("light-mode");
+    
+    if (body.classList.contains("light-mode")) {
+        btn.innerHTML = "☀️";
+    } else {
+        btn.innerHTML = "🌙";
+    }
+}
+
+// MEMBATASI TANGGAL LAHIR SAMPAI HARI INI
+const inputTanggal = document.getElementById("tanggalLahir");
+
+function tanggalLokal(date) {
+    const tahun = date.getFullYear();
+    const bulan = String(date.getMonth() + 1).padStart(2, "0");
+    const hari = String(date.getDate()).padStart(2, "0");
+
+    return `${tahun}-${bulan}-${hari}`;
+}
+
+inputTanggal.max = tanggalLokal(new Date());
+
+
+// VARIABEL GLOBAL UNTUK PENYIMPANAN TEKS HASIL SHARE
+let teksHasilRangkuman = "";
+
+// FUNGSI MENGHITUNG USIA
+function hitungUsia() {
+
+    let tanggalLahir = inputTanggal.value;
+    let hasil = document.getElementById("hasil");
+    let error = document.getElementById("error");
+
+    hasil.style.display = "none";
+    error.innerHTML = "";
+
+    if (tanggalLahir === "") {
+        error.innerHTML = "Silakan masukkan tanggal lahir!";
+        return;
+    }
+
+    let [tahunLahir, bulanLahir, hariLahir] =
+        tanggalLahir.split("-").map(Number);
+
+    let lahir = new Date(
+        tahunLahir,
+        bulanLahir - 1,
+        hariLahir
+    );
+
+    let sekarang = new Date();
+    sekarang.setHours(0, 0, 0, 0);
+
+    if (
+        lahir.getFullYear() !== tahunLahir ||
+        lahir.getMonth() !== bulanLahir - 1 ||
+        lahir.getDate() !== hariLahir ||
+        lahir > sekarang
+    ) {
+        error.innerHTML =
+            "Tanggal lahir tidak valid atau tidak boleh di masa depan!";
+        return;
+    }
+
+    let tahun = sekarang.getFullYear() - lahir.getFullYear();
+    let bulan = sekarang.getMonth() - lahir.getMonth();
+    let hari = sekarang.getDate() - lahir.getDate();
+
+    if (hari < 0) {
+        bulan--;
+        let bulanSebelumnya = sekarang.getMonth() - 1;
+        let tahunUntukBulan = sekarang.getFullYear();
+        if (bulanSebelumnya < 0) {
+            bulanSebelumnya = 11;
+            tahunUntukBulan--;
+        }
+        let jumlahHari = new Date(tahunUntukBulan, bulanSebelumnya + 1, 0).getDate();
+        hari += jumlahHari;
+    }
+
+    if (bulan < 0) {
+        tahun--;
+        bulan += 12;
+    }
+
+    // --- HITUNG TOTAL RINCIAN WAKTU HIDUP ---
+    let selisihMilidetik = sekarang - lahir;
+    let totalHariHidup = Math.floor(selisihMilidetik / (1000 * 60 * 60 * 24));
+    let totalJamHidup = totalHariHidup * 24;
+    let totalMenitHidup = totalJamHidup * 60;
+
+    // OUTPUT USIA & TOTAL WAKTU
+    document.getElementById("tahun").innerHTML = tahun;
+    document.getElementById("bulan").innerHTML = bulan;
+    document.getElementById("hari").innerHTML = hari;
+
+    document.getElementById("totalHari").innerHTML = totalHariHidup.toLocaleString("id-ID");
+    document.getElementById("totalJam").innerHTML = totalJamHidup.toLocaleString("id-ID");
+    document.getElementById("totalMenit").innerHTML = totalMenitHidup.toLocaleString("id-ID");
+
+
+    // MENENTUKAN KATEGORI USIA
+    let namaKategori, deskripsi, ikon, warna;
+
+    if (tahun <= 11) {
+        namaKategori = "Anak-anak";
+        deskripsi = "Anda termasuk kelompok usia anak-anak. Masa pertumbuhan dan perkembangan.";
+        ikon = "🧒";
+        warna = "anak";
+    } else if (tahun <= 17) {
+        namaKategori = "Remaja";
+        deskripsi = "Anda termasuk kelompok usia remaja. Masa perkembangan menuju dewasa.";
+        ikon = "🧑";
+        warna = "remaja";
+    } else if (tahun <= 59) {
+        namaKategori = "Dewasa";
+        deskripsi = "Anda termasuk kelompok usia dewasa. Masa produktif dan mandiri.";
+        ikon = "👨‍💼";
+        warna = "dewasa";
+    } else {
+        namaKategori = "Lansia";
+        deskripsi = "Anda termasuk kelompok usia lanjut atau lansia.";
+        ikon = "👴";
+        warna = "lansia";
+    }
+
+    document.getElementById("kategoriNama").innerHTML = namaKategori;
+    document.getElementById("kategoriDeskripsi").innerHTML = deskripsi;
+    document.getElementById("kategoriIcon").innerHTML = ikon;
+    document.getElementById("kategori").className = "kategori " + warna;
+
+
+    // --- FITUR ZODIAK & SHIO ---
+    function getZodiak(d, m) {
+        if ((m == 3 && d >= 21) || (m == 4 && d <= 19)) return { nama: "Aries", ikon: "♈" };
+        if ((m == 4 && d >= 20) || (m == 5 && d <= 20)) return { nama: "Taurus", ikon: "♉" };
+        if ((m == 5 && d >= 21) || (m == 6 && d <= 20)) return { nama: "Gemini", ikon: "♊" };
+        if ((m == 6 && d >= 21) || (m == 7 && d <= 22)) return { nama: "Cancer", ikon: "♋" };
+        if ((m == 7 && d >= 23) || (m == 8 && d <= 22)) return { nama: "Leo", ikon: "♌" };
+        if ((m == 8 && d >= 23) || (m == 9 && d <= 22)) return { nama: "Virgo", ikon: "♍" };
+        if ((m == 9 && d >= 23) || (m == 10 && d <= 22)) return { nama: "Libra", ikon: "♎" };
+        if ((m == 10 && d >= 23) || (m == 11 && d <= 21)) return { nama: "Scorpio", ikon: "♏" };
+        if ((m == 11 && d >= 22) || (m == 12 && d <= 21)) return { nama: "Sagitarius", ikon: "♐" };
+        if ((m == 12 && d >= 22) || (m == 1 && d <= 19)) return { nama: "Capricorn", ikon: "♑" };
+        if ((m == 1 && d >= 20) || (m == 2 && d <= 18)) return { nama: "Aquarius", ikon: "♒" };
+        return { nama: "Pisces", ikon: "♓" };
+    }
+
+    function getShio(thn) {
+        const shioList = ["Tikus", "Kerbau", "Macan", "Kelinci", "Naga", "Ular", "Kuda", "Kambing", "Monyet", "Ayam", "Anjing", "Babi"];
+        let index = (thn - 1900) % 12;
+        if (index < 0) index += 12;
+        return shioList[index];
+    }
+
+    let zodiakData = getZodiak(hariLahir, bulanLahir);
+    let shioNama = getShio(tahunLahir);
+
+    document.getElementById("zodiakIcon").innerHTML = zodiakData.ikon;
+    document.getElementById("zodiakNama").innerHTML = `${zodiakData.nama} & Shio ${shioNama}`;
+    document.getElementById("zodiakDeskripsi").innerHTML = `Zodiak Anda ${zodiakData.nama} dengan tahun lahir Shio ${shioNama}.`;
+
+
+    // --- FITUR COUNTDOWN ULANG TAHUN BERIKUTNYA ---
+    let tahunIni = sekarang.getFullYear();
+    let ulgTahunIni = new Date(tahunIni, bulanLahir - 1, hariLahir);
+
+    if (ulgTahunIni < sekarang) {
+        ulgTahunIni.setFullYear(tahunIni + 1);
+    }
+
+    let selisihWaktu = ulgTahunIni - sekarang;
+    let hariMenujuUlgTahun = Math.ceil(selisihWaktu / (1000 * 60 * 60 * 24));
+
+    document.getElementById("countdownDeskripsi").innerHTML = 
+        `Tersisa <strong>${hariMenujuUlgTahun} hari</strong> lagi menuju hari ulang tahun Anda berikutnya!`;
+
+
+    // --- MEMBUAT TEKS RANGKUMAN UNTUK DISALIN/WHATSAPP ---
+    teksHasilRangkuman = `🎂 Hasil Perhitungan Usia Saya:\n` +
+        `- Usia: ${tahun} Tahun, ${bulan} Bulan, ${hari} Hari\n` +
+        `- Total Hidup: ${totalHariHidup.toLocaleString("id-ID")} Hari (${totalJamHidup.toLocaleString("id-ID")} Jam)\n` +
+        `- Kategori: ${namaKategori}\n` +
+        `- Zodiak & Shio: ${zodiakData.nama} & Shio ${shioNama}\n` +
+        `- Ulang Tahun Berikutnya: ${hariMenujuUlgTahun} hari lagi!`;
+
+
+    // MENAMPILKAN HASIL
+    hasil.style.display = "block";
+
+}
+
+// FUNGSI MENYALIN TEKS KE CLIPBOARD (DENGAN FALLBACK AMAN)
+function salinHasil() {
+    if (!teksHasilRangkuman) return;
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(teksHasilRangkuman).then(() => {
+            tampilkanToast("Hasil berhasil disalin ke clipboard! 📋");
+        }).catch(() => {
+            fallbackSalinText(teksHasilRangkuman);
+        });
+    } else {
+        fallbackSalinText(teksHasilRangkuman);
+    }
+}
+
+// Fallback jika Clipboard API tidak didukung/tidak aman
+function fallbackSalinText(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";  // Hindari scroll ke bawah
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        let berhasil = document.execCommand('copy');
+        if (berhasil) {
+            tampilkanToast("Hasil berhasil disalin! 📋");
+        } else {
+            alert("Gagal menyalin teks.");
+        }
+    } catch (err) {
+        alert("Gagal menyalin teks.");
+    }
+    document.body.removeChild(textArea);
+}
+
+// FUNGSI MEMBAGIKAN KE WHATSAPP
+function bagikanWhatsApp() {
+    if (!teksHasilRangkuman) return;
+    let urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksHasilRangkuman)}`;
+    window.open(urlWA, "_blank", "noopener,noreferrer");
+}
+
+// FUNGSI MENAMPILKAN NOTIFIKASI TOAST
+function tampilkanToast(pesan) {
+    const toast = document.getElementById("toastNotif");
+    toast.innerText = pesan;
+    toast.classList.add("show");
+    
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500);
+}
+
+</script>
+
+</body>
+</html>
